@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+  xsi:type="TaskPaneApp">
+
+  <Id>12345678-1234-1234-1234-123456789012</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Your Name</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Image Inserter"/>
+  <Description DefaultValue="Insert images from your computer into Word in a grid with captions."/>
+
+  <IconUrl DefaultValue="https://vance-setal-receptually.ngrok-free.dev/icon.png"/>
+  <HighResolutionIconUrl DefaultValue="https://vance-setal-receptually.ngrok-free.dev/icon.png"/>
+  <SupportUrl DefaultValue="https://vance-setal-receptually.ngrok-free.dev"/>
+
+  <AppDomains>
+    <AppDomain>https://vance-setal-receptually.ngrok-free.dev</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://vance-setal-receptually.ngrok-free.dev/taskpane.html"/>
+  </DefaultSettings>
+
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
+          </GetStarted>
+          <FunctionFile resid="Commands.Url"/>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="CommandsGroup">
+                <Label resid="CommandsGroup.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <Control xsi:type="Button" id="TaskpaneButton">
+                  <Label resid="TaskpaneButton.Label"/>
+                  <Supertip>
+                    <Title resid="TaskpaneButton.Label"/>
+                    <Description resid="TaskpaneButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId1</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16x16" DefaultValue="https://vance-setal-receptually.ngrok-free.dev/icon.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://vance-setal-receptually.ngrok-free.dev/icon.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://vance-setal-receptually.ngrok-free.dev/icon.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://vance-setal-receptually.ngrok-free.dev"/>
+        <bt:Url id="Commands.Url"            DefaultValue="https://vance-setal-receptually.ngrok-free.dev/taskpane.html"/>
+        <bt:Url id="Taskpane.Url"            DefaultValue="https://vance-setal-receptually.ngrok-free.dev/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title"       DefaultValue="Image Inserter is ready!"/>
+        <bt:String id="CommandsGroup.Label"    DefaultValue="Image Inserter"/>
+        <bt:String id="TaskpaneButton.Label"   DefaultValue="Insert Images"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Insert images into your document in a grid with captions."/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the Image Inserter panel."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

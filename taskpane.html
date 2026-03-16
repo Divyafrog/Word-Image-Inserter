@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Inserter</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: #f5f5f5;
+      color: #222;
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #444;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #2b7cd3;
+    }
+
+    .columns-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .columns-row label { margin: 0; }
+
+    select {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+      background: white;
+    }
+
+    .upload-area {
+      border: 2px dashed #aaa;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      background: white;
+      color: #666;
+      margin-bottom: 14px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .upload-area:hover, .upload-area.drag-over {
+      border-color: #2b7cd3;
+      background: #eef5fd;
+      color: #2b7cd3;
+    }
+
+    .upload-area input { display: none; }
+
+    .upload-icon { font-size: 28px; margin-bottom: 6px; }
+
+    #preview-list {
+      list-style: none;
+      margin-bottom: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: none;
+    }
+
+    #preview-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+    }
+
+    #preview-list li:last-child { border-bottom: none; }
+
+    #preview-list img {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid #ddd;
+    }
+
+    #preview-list .fname {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #333;
+    }
+
+    #preview-list .remove-btn {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    #preview-list .remove-btn:hover { color: #c00; }
+
+    #image-count {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background: #2b7cd3;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .btn-primary:hover { background: #1a68bf; }
+    .btn-primary:disabled { background: #9ab8d8; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #e8e8e8;
+      color: #444;
+    }
+
+    .btn-secondary:hover { background: #d5d5d5; }
+
+    #status {
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: none;
+    }
+
+    #status.success { background: #e6f4ea; color: #2d7a3a; border: 1px solid #b2dfbc; }
+    #status.error   { background: #fdecea; color: #b71c1c; border: 1px solid #f5c6cb; }
+    #status.info    { background: #e8f0fe; color: #1a56a0; border: 1px solid #bcd0f5; }
+  </style>
+</head>
+<body>
+
+<h1>📷 Image Inserter</h1>
+
+<label for="doc-title">Document Title</label>
+<input type="text" id="doc-title" placeholder="e.g. Site Survey Report" />
+
+<div class="columns-row">
+  <label for="col-select">Columns per row:</label>
+  <select id="col-select">
+    <option value="auto" selected>Auto (fit page)</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+</div>
+
+<label>Images</label>
+<div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+  <input type="file" id="file-input" multiple accept="image/*" />
+  <div class="upload-icon">🖼️</div>
+  <div>Click to select images<br><small>or drag and drop here</small></div>
+</div>
+
+<div id="image-count"></div>
+<ul id="preview-list"></ul>
+
+<button class="btn btn-primary" id="insert-btn" disabled>Insert into Document</button>
+<button class="btn btn-secondary" id="clear-btn">Clear Images</button>
+
+<div id="status"></div>
+
+<script>
+  // ── State ────────────────────────────────────────────────────────────────
+  let selectedFiles = []; // array of { file, dataUrl }
+
+  // ── Office init ──────────────────────────────────────────────────────────
+  Office.onReady(info => {
+    if (info.host !== Office.HostType.Word) {
+      showStatus("This add-in only works inside Microsoft Word.", "error");
+    }
+  });
+
+  // ── File input ───────────────────────────────────────────────────────────
+  document.getElementById("file-input").addEventListener("change", e => {
+    handleFiles(Array.from(e.target.files));
+    e.target.value = ""; // reset so same files can be re-added
+  });
+
+  // ── Drag and drop ────────────────────────────────────────────────────────
+  const dropZone = document.getElementById("drop-zone");
+
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropZone.classList.remove("drag-over");
+    handleFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/")));
+  });
+
+  function handleFiles(files) {
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        selectedFiles.push({ file, dataUrl: e.target.result });
+        renderPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPreview() {
+    const list  = document.getElementById("preview-list");
+    const count = document.getElementById("image-count");
+    list.innerHTML = "";
+
+    selectedFiles.forEach((item, i) => {
+      const li  = document.createElement("li");
+      const img = document.createElement("img");
+      img.src   = item.dataUrl;
+
+      const span       = document.createElement("span");
+      span.className   = "fname";
+      span.textContent = item.file.name;
+
+      const btn       = document.createElement("button");
+      btn.className   = "remove-btn";
+      btn.textContent = "×";
+      btn.title       = "Remove";
+      btn.onclick     = () => { selectedFiles.splice(i, 1); renderPreview(); };
+
+      li.append(img, span, btn);
+      list.appendChild(li);
+    });
+
+    const hasFiles = selectedFiles.length > 0;
+    list.style.display  = hasFiles ? "block" : "none";
+    count.style.display = hasFiles ? "block" : "none";
+    count.textContent   = `${selectedFiles.length} image${selectedFiles.length !== 1 ? "s" : ""} selected`;
+    document.getElementById("insert-btn").disabled = !hasFiles;
+  }
+
+  // ── Clear ────────────────────────────────────────────────────────────────
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    selectedFiles = [];
+    renderPreview();
+    hideStatus();
+  });
+
+  // ── Insert ───────────────────────────────────────────────────────────────
+  document.getElementById("insert-btn").addEventListener("click", insertImages);
+
+  async function insertImages() {
+    if (selectedFiles.length === 0) return;
+
+    const btn   = document.getElementById("insert-btn");
+    const title = document.getElementById("doc-title").value.trim();
+    const colSetting = document.getElementById("col-select").value;
+
+    btn.disabled    = true;
+    btn.textContent = "Inserting…";
+    showStatus("Inserting images, please wait…", "info");
+
+    try {
+      await Word.run(async context => {
+        const body = context.document.body;
+
+        // ── Title ──────────────────────────────────────────────────────────
+        if (title) {
+          const titlePara = body.insertParagraph(title, Word.InsertLocation.end);
+          titlePara.styleBuiltIn = Word.Style.heading1;
+          titlePara.alignment    = Word.Alignment.centered;
+        }
+
+        // ── Calculate columns ─────────────────────────────────────────────
+        // Page content width ≈ 468pt (6.5 inches at 72pt/inch)
+        const PAGE_WIDTH_PT  = 468;
+        const GUTTER_PT      = 6;
+        const MIN_IMG_PT     = 108; // 1.5 inches minimum
+
+        let cols;
+        if (colSetting === "auto") {
+          cols = 1;
+          while (true) {
+            const next     = cols + 1;
+            const colWidth = (PAGE_WIDTH_PT - (next - 1) * GUTTER_PT) / next;
+            if (colWidth < MIN_IMG_PT) break;
+            cols = next;
+          }
+        } else {
+          cols = parseInt(colSetting);
+        }
+
+        const colWidth = Math.floor((PAGE_WIDTH_PT - (cols - 1) * GUTTER_PT) / cols);
+
+        // ── Build HTML table ──────────────────────────────────────────────
+        // Word.run insertHtml is the most reliable way to insert a complex table
+        let html = `<table style="width:100%;border-collapse:collapse;">`;
+
+        for (let i = 0; i < selectedFiles.length; i += cols) {
+          html += `<tr>`;
+          for (let col = 0; col < cols; col++) {
+            const item = selectedFiles[i + col];
+            const tdStyle = `padding:4px;vertical-align:top;width:${Math.floor(100/cols)}%;`;
+
+            if (item) {
+              // Get base64 data (strip the data:image/...;base64, prefix)
+              const base64 = item.dataUrl.split(",")[1];
+              const mime   = item.dataUrl.split(";")[0].split(":")[1];
+              const fname  = item.file.name.replace(/\.[^.]+$/, "");
+
+              html += `<td style="${tdStyle}">`;
+              html += `<img src="data:${mime};base64,${base64}" style="width:100%;display:block;" />`;
+              html += `<div style="border-bottom:1px solid #ccc;padding:3px 0;font-size:10pt;font-family:Arial;">`;
+              html += `<b style="color:#555;">Caption:</b> <i style="color:#999;">[${fname}]</i>`;
+              html += `</div></td>`;
+            } else {
+              html += `<td style="${tdStyle}"></td>`;
+            }
+          }
+          html += `</tr>`;
+        }
+
+        html += `</table>`;
+
+        // Insert the HTML at the end of the document
+        const range = body.getRange(Word.RangeLocation.end);
+        range.insertHtml(html, Word.InsertLocation.before);
+
+        // Add spacing paragraph after
+        body.insertParagraph("", Word.InsertLocation.end);
+
+        await context.sync();
+      });
+
+      showStatus(`✅ ${selectedFiles.length} image${selectedFiles.length !== 1 ? "s" : ""} inserted successfully!`, "success");
+    } catch (err) {
+      showStatus(`Error: ${err.message}`, "error");
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = "Insert into Document";
+    }
+  }
+
+  // ── Status helpers ────────────────────────────────────────────────────────
+  function showStatus(msg, type) {
+    const el      = document.getElementById("status");
+    el.textContent = msg;
+    el.className  = type;
+    el.style.display = "block";
+  }
+
+  function hideStatus() {
+    document.getElementById("status").style.display = "none";
+  }
+</script>
+</body>
+</html>
